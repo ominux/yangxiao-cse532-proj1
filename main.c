@@ -2,19 +2,14 @@
 // Function: 	main	
 // Description:	Used to run the code
 // **************************************************************
-#include <pthread.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "GlobalVar.h"
 
 
 // Function declearation
-int assoc_gen(int threshold);
+int data_read(void);
 
-// Global variables declearation
-#define PROCESSOR_NUM 5
 pthread_mutex_t mutexsum;
 
-int global_array[5][5];
 
 
 void *find_large_item(void *tid)
@@ -56,6 +51,15 @@ int main(void)
 	int j = 0;
 	int threshold = 0;
 	void *status;
+
+	// Read the data from TXT file
+	if (data_read() == 0)
+	{
+		return 0;
+	}
+
+
+
 	//assoc_gen(threshold);
     pthread_attr_t attr;
 	pthread_t thread[PROCESSOR_NUM];

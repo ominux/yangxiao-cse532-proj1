@@ -1,11 +1,11 @@
-min.exe : main.o assoc_eng.o
-	gcc main.o assoc_eng.o -pthread -o main.exe
+main.exe : main.o data_read.o
+	gcc main.o data_read.o -pthread -o main.exe
 
 main.o : main.c
 	gcc -c main.c
 
-assoc_eng.o : assoc_eng.c
-	gcc -std=c99 -c assoc_eng.c
+data_read.o : data_read.c
+	gcc -c data_read.c
 
 clean : 
 	rm -rf *.o *.exe
