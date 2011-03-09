@@ -16,7 +16,7 @@ int main (int argc, char *argv[])
 	int		max_num		= 0;
 	int		iter_num	= 0;
 	int		char_num	= 0;
-
+	int 	i,j;
 	FILE	*fp;
 	
 	// Write to a file
@@ -34,12 +34,12 @@ int main (int argc, char *argv[])
 	
 	//fprintf(fp, "%d\n", iter_num);
 
-	for (int i = 0; i < iter_num; i++)
+	for (i = 0; i < iter_num; i++)
 	{
 		// Generate the real characters number 
 		char_num	= rand() % max_num + 1;
 		fprintf(fp, "%d\t", char_num);
-		for (int j = 0; j < char_num; j++)
+		for (j = 0; j < char_num; j++)
 		{
 			int temp;
 			temp	= rand() % 26 + 97;
