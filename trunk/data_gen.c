@@ -17,6 +17,11 @@ int main (int argc, char *argv[])
 	int		iter_num	= 0;
 	int		char_num	= 0;
 
+	FILE	*fp;
+	
+	// Write to a file
+	fp	= fopen("trans_list.txt", "w+");	
+
 	// Enter the iteration number	
 	printf("Enter the prefered iteration number: ");
 	fgets(iter_str, 256, stdin);
@@ -27,19 +32,22 @@ int main (int argc, char *argv[])
 	fgets(max_str, 256, stdin);
 	max_num	= atoi(max_str);
 	
+	//fprintf(fp, "%d\n", iter_num);
+
 	for (int i = 0; i < iter_num; i++)
 	{
 		// Generate the real characters number 
 		char_num	= rand() % max_num + 1;
-		printf("%d\t%d\t", i, char_num);
+		fprintf(fp, "%d\t", char_num);
 		for (int j = 0; j < char_num; j++)
 		{
 			int temp;
 			temp	= rand() % 26 + 97;
 			rand_char	= (char) temp;
-			printf("%c\t", rand_char);
+			fprintf(fp, "%c\t", rand_char);
 		}
-		printf("\n");
+		fprintf(fp, "\n");
 	}
+	fclose(fp);
 	return 0;
 }
