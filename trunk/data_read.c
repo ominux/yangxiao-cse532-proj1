@@ -3,7 +3,8 @@
 // Description: Used to read the raw data
 // **************************************************************
 #include "GlobalVar.h"        
-            
+void merge_sort(char *array_pt, int low_bound, int up_bound);       
+
 int data_read(void)
 {      
 	int		i;
@@ -29,6 +30,16 @@ int data_read(void)
         }   
     }
     fclose(fp);
+
+	
+	for (i = 0; i < ITER_NUM; i++)
+	{
+		char_num = original_array[i][0];
+		merge_sort(&original_array[i][0], 1, char_num);
+	}
+
+
+
 	
 	if (DEBUG_4)
 	{
