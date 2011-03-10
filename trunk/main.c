@@ -7,48 +7,17 @@
 
 // Function declearation
 int data_read(void);
-
-pthread_mutex_t mutexsum;
-
+void *find_large_item(void *arg);
 
 
-void *find_large_item(void *tid)
-{
-	int i, j;
-	int cell;
-	int local_array[5][5];
-		
-	cell = (int)((long) tid);
-	
-	printf("Thread ID: %d\n", cell);
 
-	for (i = 0; i < 5; i++)
-	{
-		for (j = 0; j < 5; j++)
-		{
-			local_array[i][j] = cell;
-		}
-	}	
-	printf("Thread ID Merge: %d\n", cell);
-	
-	pthread_mutex_lock(&mutexsum);
-	for (i = 0; i < 5; i++)
-	{
-		for (j = 0; j < 5; j++)
-		{
-			global_array[i][j] = global_array[i][j] + local_array[i][j];
-		}
-	}	
-	pthread_mutex_unlock(&mutexsum);
-
-	pthread_exit((void*) 0);
-}
 
 
 int main(void)
 {
 	int i = 0;
 	int j = 0;
+	int k = 0;
 	int threshold = 0;
 	void *status;
 
@@ -58,18 +27,25 @@ int main(void)
 		return 0;
 	}
 
-
+	if (DEBUG_1 || DEBUG_2 || DEBUG_3)
+	{	
+		printf("ITER_NUM: %d, PROCESSOR_NUM: %d\n", ITER_NUM, PROCESSOR_NUM);	
+	}
 
 	//assoc_gen(threshold);
     pthread_attr_t attr;
 	pthread_t thread[PROCESSOR_NUM];
 	
 	// Initialize the global array
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < ARRAY_ROW_NUM; i++)
 	{
-		for (j = 0; j < 5; j++)
+		for (j = 0; j < ARRAY_COL_NUM; j++)
 		{
-			global_array[i][j] = 0;
+			global_array[i][j].counter = 0;
+			for (k = 0; k < ITER_NUM; k++)
+			{
+				global_array[i][j].iter_list[k] = 0;
+			}
 		}
 	}	
 
@@ -88,14 +64,18 @@ int main(void)
 	{
 		pthread_join(thread[i], &status);
 	}
-			
-	for (i = 0; i < 5; i++)
-	{
-		for (j = 0; j < 5; j++)
+		
+	if (DEBUG_5)
+	{	
+		printf("Global Array: \n");
+		for (i = 0; i < ARRAY_ROW_NUM; i++)
 		{
-			printf("%d\t", global_array[i][j]);
+			for (j = 0; j < ARRAY_COL_NUM; j++)
+			{
+				printf("%d\t", global_array[i][j].counter);
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}	
 	pthread_mutex_destroy(&mutexsum);
 	pthread_exit(NULL);
