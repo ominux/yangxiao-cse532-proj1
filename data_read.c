@@ -22,15 +22,28 @@ int data_read(void)
     for (i = 0; i < ITER_NUM; i++)
     {
         fscanf(fp, "%d\t", &char_num);
-        //printf("%d", char_num);
-        for (j = 0; j < char_num; j++)
+		original_array[i][0] = char_num;
+        for (j = 1; j < char_num + 1; j++)
         {   
             fscanf(fp, "%c\t", &original_array[i][j]);
-            //printf("%c", original_array[i][j]);
         }   
-        //printf("\n");   
     }
     fclose(fp);
+	
+	if (DEBUG_4)
+	{
+		printf("READ IN ARRAY:\n");
+		for (i = 0; i < ITER_NUM; i++)
+		{
+			char_num = original_array[i][0];
+			printf("%d\t", char_num);
+			for (j = 1; j < char_num + 1; j++)
+			{   
+				printf("%c\t", original_array[i][j]);
+			}   
+			printf("\n");   
+		}
+	}
 	return 1;
 }
 
