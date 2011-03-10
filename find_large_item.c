@@ -22,7 +22,6 @@ void *find_large_item(void *arg)
 	start 	= tid * ITER_NUM / PROCESSOR_NUM;	
 	end		= (tid + 1) * ITER_NUM / PROCESSOR_NUM;
 	
-	//printf("Thread ID: %d Initialize Local Array!\n", tid);
 	
 	// Initialzie local_array, clear counter and iteration list
 	for (i = 0; i < ARRAY_ROW_NUM; i++)
@@ -38,22 +37,23 @@ void *find_large_item(void *arg)
 	}	
 	
 	// Scan the raw data from the start iter to end iter
-	if (DEBUG_3)
+	if (DEBUG_4)
 	{
 		printf("Thread ID: %d Local Array --> Detail:\n", tid);
 		printf("Start: %d, End: %d\n", start, end);
-	}	
+	}
+	
+	// Begin to process data
 	for (i = start; i < end; i++)
 	{
-		// Get the real item number of the iter being scanned
 		char_num = original_array[i][0];
-		if (DEBUG_3)
+		if (DEBUG_4)
 		{
 			printf("Char_num: %d\n", char_num);
 		}
 		for (j = 1; j < char_num + 1; j++)
 		{
-			if (DEBUG_3)
+			if (DEBUG_4)
 			{
 				printf("I: %d, J: %d, Original_Array[i][j]: %c\n", i, j, original_array[i][j]);
 			}
@@ -76,7 +76,7 @@ void *find_large_item(void *arg)
 					local_array[index_i][index_j].iter_list[i] = 1;
 				}
 	
-				if (DEBUG_3)
+				if (DEBUG_4)
 				{
 					printf("Original_Array[i][k]: %c, Index_I: %d, Index_J: %d, Couter: %d, List: %d\n", original_array[i][k], index_i, index_j, local_array[index_i][index_j].counter, local_array[index_i][index_j].iter_list[i]);
 				}
@@ -85,7 +85,6 @@ void *find_large_item(void *arg)
 	}
 	
 	// Merge the local data to global data
-	//printf("Thread ID: %d Merge Begin!\n", tid);
 	pthread_mutex_lock(&mutexsum);
 
 	for (i = 0; i < ARRAY_ROW_NUM; i++)
@@ -100,40 +99,32 @@ void *find_large_item(void *arg)
 		}
 	}
 
-
-	if (DEBUG_1)
+	// Debud code
+	if (DEBUG_3)
 	{
-		printf("Thread ID: %d Local Array --> Counter:\n", tid);
+		printf("Thread ID: %d Local Counter & List: \n", tid);
 		printf("Start: %d, End: %d\n", start, end);
 		for (i = 0; i < ARRAY_ROW_NUM; i++)
 		{
 			for (j = 0; j < ARRAY_COL_NUM; j++)
 			{
-				printf("%d\t", local_array[i][j].counter);
-			}
-			printf("\n");
-		}
-		printf("\n");
-	}
-
-
-	if (DEBUG_2)
-	{
-		for (i = 0; i < ARRAY_ROW_NUM; i++)
-		{
-			for (j = 0; j < ARRAY_COL_NUM; j++)
-			{
-				printf("Thread ID: %d Local Array [%d, %d] --> Iter_list:\n", tid, i, j);
-				for (k = start; k < end; k++)
+				if (local_array[i][j].counter);
 				{
-					printf("%d\t", local_array[i][j].iter_list[k]);
+					printf("Combination '%c%c' happen %d times at iteration: \n", i + 97, j + 97, local_array[i][j].counter);
+					for (k = 0; k < ITER_NUM; k++)
+					{
+						if (local_array[i][j].iter_list[k])
+						{
+							printf("%d\t", k);
+						}
+					}	
+					printf("\n");
 				}
-				printf("\n");
 			}
 			printf("\n");
 		}
 	}
-	
+
 	pthread_mutex_unlock(&mutexsum);
 	pthread_exit((void*) 0);
 }

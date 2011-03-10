@@ -19,7 +19,8 @@ int data_read(void)
         printf("Can't open input file!");
 		return 0;
     }
-
+	
+	// Scan in the raw data
     for (i = 0; i < ITER_NUM; i++)
     {
         fscanf(fp, "%d\t", &char_num);
@@ -31,17 +32,15 @@ int data_read(void)
     }
     fclose(fp);
 
-	
+	// Merge sort
 	for (i = 0; i < ITER_NUM; i++)
 	{
 		char_num = original_array[i][0];
 		merge_sort(&original_array[i][0], 1, char_num);
 	}
 
-
-
-	
-	if (DEBUG_4)
+	// Debug code
+	if (DEBUG_1)
 	{
 		printf("READ IN ARRAY:\n");
 		for (i = 0; i < ITER_NUM; i++)
