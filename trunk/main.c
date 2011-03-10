@@ -32,7 +32,6 @@ int main(void)
 		printf("ITER_NUM: %d, PROCESSOR_NUM: %d\n", ITER_NUM, PROCESSOR_NUM);	
 	}
 
-	//assoc_gen(threshold);
     pthread_attr_t attr;
 	pthread_t thread[PROCESSOR_NUM];
 	
@@ -48,7 +47,8 @@ int main(void)
 			}
 		}
 	}	
-
+	
+	// Begin to process the raw data and find all two-item pair
 	pthread_mutex_init(&mutexsum, NULL);
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -65,19 +65,33 @@ int main(void)
 		pthread_join(thread[i], &status);
 	}
 		
-	if (DEBUG_5)
+	pthread_mutex_destroy(&mutexsum);
+	
+	// Debug code
+	if (DEBUG_2)
 	{	
-		printf("Global Array: \n");
+		printf("Global Counter & List: \n");
 		for (i = 0; i < ARRAY_ROW_NUM; i++)
 		{
 			for (j = 0; j < ARRAY_COL_NUM; j++)
 			{
-				printf("%d\t", global_array[i][j].counter);
+				if (global_array[i][j].counter);
+				{
+					printf("Combination '%c%c' happen %d times at iteration: \n", i + 97, j + 97, global_array[i][j].counter);
+					for (k = 0; k < ITER_NUM; k++)
+					{
+						if (global_array[i][j].iter_list[k])
+						{
+							printf("%d\t", k);
+						}
+					}	
+					printf("\n");
+				}
 			}
 			printf("\n");
 		}
-	}	
-	pthread_mutex_destroy(&mutexsum);
+	}
+	
 	pthread_exit(NULL);
 }
 

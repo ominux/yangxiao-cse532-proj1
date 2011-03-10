@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
 			tag_list[j] = 0;
 		}
 		// Generate the real characters number 
-		char_num = rand() % CHAR_NUM_MAX + 1;
+		char_num = rand() % CHAR_NUM + 1;
 		fprintf(fp, "%d\t", char_num);
 		for (j = 0; j < char_num; j++)
 		{
