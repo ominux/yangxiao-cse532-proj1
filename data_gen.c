@@ -13,13 +13,9 @@ int main (int argc, char *argv[])
 	int		max_num		= 0;
 	int		iter_num	= 0;
 	int		char_num	= 0;
-<<<<<<< .mine
 	int		i			= 0;
 	int		j			= 0;
 	int		tag_list[CHAR_NUM_MAX];
-=======
-	int 	i,j;
->>>>>>> .r6
 	FILE	*fp;
 		
 	// Write to a file
@@ -35,12 +31,7 @@ int main (int argc, char *argv[])
 	max_num	= atoi(max_str);*/
 	
 	//fprintf(fp, "%d\n", iter_num);
-<<<<<<< .mine
 	for (i = 0; i < ITER_NUM; i++)
-=======
-
-	for (i = 0; i < iter_num; i++)
->>>>>>> .r6
 	{
 		// Initialize char_list
 		for (j = 0; j < CHAR_NUM_MAX; j++)
