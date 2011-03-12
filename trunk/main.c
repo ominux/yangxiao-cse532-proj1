@@ -10,9 +10,6 @@ int data_read(void);
 void *find_large_item(void *arg);
 
 
-
-
-
 int main(void)
 {
 	int i = 0;
@@ -85,26 +82,8 @@ int main(void)
 	// Debug code
 	if (DEBUG_2)
 	{	
-		printf("Global Counter & List: \n");
-		for (i = 0; i < ARRAY_ROW_NUM; i++)
-		{
-			for (j = 0; j < ARRAY_COL_NUM; j++)
-			{
-				if (global_array[i][j].counter)
-				{
-					printf("Combination '%c%c' happen %d times at iteration: \n", i + 97, j + 97, global_array[i][j].counter);
-					for (k = 0; k < ITER_NUM; k++)
-					{
-						if (global_array[i][j].iter_list[k])
-						{
-							printf("%d\t", k);
-						}
-					}	
-					printf("\n");
-				}
-			}
-			printf("\n");
-		}
+		printf("main thread: global counter & list\n");
+		print_ARRAY(global_array);
 	}
 	
 	pthread_exit(NULL);

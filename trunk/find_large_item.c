@@ -104,25 +104,7 @@ void *find_large_item(void *arg)
 	{
 		printf("Thread ID: %d Local Counter & List: \n", tid);
 		printf("Start: %d, End: %d\n", start, end);
-		for (i = 0; i < ARRAY_ROW_NUM; i++)
-		{
-			for (j = 0; j < ARRAY_COL_NUM; j++)
-			{
-				if (local_array[i][j].counter);
-				{
-					printf("Combination '%c%c' happen %d times at iteration: \n", i + 97, j + 97, local_array[i][j].counter);
-					for (k = 0; k < ITER_NUM; k++)
-					{
-						if (local_array[i][j].iter_list[k])
-						{
-							printf("%d\t", k);
-						}
-					}	
-					printf("\n");
-				}
-			}
-			printf("\n");
-		}
+		print_ARRAY(local_array);
 	}
 
 	pthread_mutex_unlock(&mutexsum);
@@ -134,6 +116,15 @@ void *find_large_item(void *arg)
 	{
 		printf("Could not wait on barrier\n");
 		exit(-1);
+	}
+	if (DEBUG_2)
+	{
+		pthread_mutex_lock(&mutexsum);
+		printf("After sync\n");
+                printf("Thread ID: %d Local Counter & List: \n", tid);
+                printf("Start: %d, End: %d\n", start, end);
+                print_ARRAY(global_array);
+		pthread_mutex_unlock(&mutexsum);
 	}
 	pthread_exit((void*) 0);
 }
