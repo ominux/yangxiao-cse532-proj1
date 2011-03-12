@@ -4,8 +4,8 @@ data_gen.exe : data_gen.c
 	gcc -o data_gen.exe data_gen.c  
 
 
-main.exe : main.o find_large_item.o data_read.o merge_sort.o
-	gcc main.o find_large_item.o data_read.o merge_sort.o -pthread -o main.exe
+main.exe : main.o find_large_item.o data_read.o merge_sort.o print.o
+	gcc main.o find_large_item.o data_read.o merge_sort.o print.o -pthread -o main.exe
 
 main.o : main.c
 	gcc -c main.c
@@ -19,5 +19,7 @@ find_large_item.o : find_large_item.c
 merge_sort.o : merge_sort.c
 	gcc -c merge_sort.c 
 
+print.o : print.c
+	gcc -c print.c
 clean : 
 	rm -rf *.o *.exe
