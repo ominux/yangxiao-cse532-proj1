@@ -126,5 +126,14 @@ void *find_large_item(void *arg)
 	}
 
 	pthread_mutex_unlock(&mutexsum);
+	
+	// Synchronization point: wait for all peers to finish updating global_array, 
+	// and then continue local computation
+	int sync = pthread_barrier_wait(&barr);
+	if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
+	{
+		printf("Could not wait on barrier\n");
+		exit(-1);
+	}
 	pthread_exit((void*) 0);
 }
