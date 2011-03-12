@@ -15,7 +15,7 @@
 	
 	// DEBUG LEVEL
 	#define DEBUG_1			1	// Display read in data array
-	#define DEBUG_2			1	// Display global_array
+	#define DEBUG_2			0	// Display global_array
 	#define DEBUG_3			0	// Display local_array counter
 	#define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
 
