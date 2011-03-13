@@ -12,12 +12,16 @@
 	#define PROCESSOR_NUM   5
 	#define ARRAY_ROW_NUM	26
 	#define ARRAY_COL_NUM	26
+	#define LIST_SIZE       1000
+	#define THRESHOLD		1   // Threshold for large itemset
+	#define MAX_ITEM_SIZE 	5	// Maximum large itemset size value				
 	
 	// DEBUG LEVEL
 	#define DEBUG_1			1	// Display read in data array
-	#define DEBUG_2			1	// Display global_array
+	#define DEBUG_2			0	// Display global_array
 	#define DEBUG_3			0	// Display local_array counter
 	#define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
+	#define DEBUG_5			1  	// Display itemset debug info
 
 	// Global Variables
 	pthread_mutex_t mutexsum;
@@ -29,6 +33,12 @@
 		int		iter_list[ITER_NUM];
 	} CELLDATA;
 	CELLDATA 	global_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
+	
+	typedef struct
+	{
+		CELLDATA stats;
+		int items[CHAR_NUM_MAX];
+	} LIST;
 
 	void print_ARRAY(CELLDATA array[ARRAY_ROW_NUM][ARRAY_COL_NUM]);
 

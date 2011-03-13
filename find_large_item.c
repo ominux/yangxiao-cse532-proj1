@@ -17,6 +17,8 @@ void *find_large_item(void *arg)
 	int		char_num;
 
 	CELLDATA 	local_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
+	LIST		curr_itemset[LIST_SIZE];
+	LIST		next_itemset[LIST_SIZE];
 		
 	tid 	= (int)((long) arg);
 	start 	= tid * ITER_NUM / PROCESSOR_NUM;	
@@ -109,8 +111,7 @@ void *find_large_item(void *arg)
 
 	pthread_mutex_unlock(&mutexsum);
 	
-	// Synchronization point: wait for all peers to finish updating global_array, 
-	// and then continue local computation
+	// Synchronization point: wait for all peers to finish updating global_array 
 	int sync = pthread_barrier_wait(&barr);
 	if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
 	{
@@ -121,10 +122,42 @@ void *find_large_item(void *arg)
 	{
 		pthread_mutex_lock(&mutexsum);
 		printf("After sync\n");
-                printf("Thread ID: %d Local Counter & List: \n", tid);
-                printf("Start: %d, End: %d\n", start, end);
-                print_ARRAY(global_array);
+        printf("Thread ID: %d Local Counter & List: \n", tid);
+        printf("Start: %d, End: %d\n", start, end);
+        print_ARRAY(global_array);
 		pthread_mutex_unlock(&mutexsum);
 	}
+	// Each thread reads the assigned part of the global_array, and generates itemsize of 2
+	start   = tid * ARRAY_ROW_NUM / PROCESSOR_NUM;
+    end     = (tid + 1) * ARRAY_ROW_NUM / PROCESSOR_NUM;
+	if (DEBUG_3)
+	{
+		printf("Thread ID: %d, start = %d, end = %d \n", tid, start, end);
+	}
+	int index = 0;
+	for (i = start; i < end; i++)
+	{
+		for (j = 0; j < ARRAY_COL_NUM; j++)
+		{
+			if (global_array[i][j].counter >= THRESHOLD)
+			{
+				curr_itemset[index].items[0] = i;
+				curr_itemset[index].items[1] = j;
+				curr_itemset[index].stats.counter = global_array[i][j].counter;
+				for (k = 0; k < ITER_NUM; k++)
+				{
+					curr_itemset[index].stats.iter_list[k] = global_array[i][j].iter_list[k];
+				}
+			 	index++;
+			}
+		}
+	}
+	// print out large itemset of size 2
+	printf("Thread ID: %d, Large itemset of size 2: \n", tid);
+	for (i = 0; i < index; i++)
+	{
+		printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
+	}
+	printf("\n");
 	pthread_exit((void*) 0);
 }
