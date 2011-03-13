@@ -153,11 +153,102 @@ void *find_large_item(void *arg)
 		}
 	}
 	// print out large itemset of size 2
-	printf("Thread ID: %d, Large itemset of size 2: \n", tid);
+	printf("Thread ID = %d, large itemset of size 2: \n", tid);
 	for (i = 0; i < index; i++)
 	{
 		printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
 	}
 	printf("\n");
+
+	int s,p;
+	int flag;
+	int next_index = 0; 
+	int count;
+	int tmp[ITER_NUM];
+	// Each thread generates large itemset of size s (s>=3) and print them out
+	for (s = 1; s < MAX_ITEM_SIZE -1; s++)
+	{
+		for (i = 0; i < index-1; i++)
+		{
+			for (j = i+1; j < index; j++)
+			{
+				flag = 1;
+				// compare the first s characters and they have to match to be candidates
+				for (p = 0; p < s; p++)
+				{
+					if(curr_itemset[i].items[p] != curr_itemset[j].items[p])
+					{
+						flag = 0;
+						break;
+					}
+				}
+				if (!flag)
+				{
+					break; // provided that the lists are sorted alphabetically
+				} 
+				else
+				{
+					// find a candidate, now checks the transaction lists to see if they have enough appearances in common
+					count = 0;
+					for (k = 0; k < ITER_NUM; k++)
+					{
+						tmp[k] = 0;
+					}
+					for (k = 0; k < ITER_NUM; k++)
+					{
+						if (curr_itemset[i].stats.iter_list[k] == curr_itemset[j].stats.iter_list[k])
+						{
+							if (curr_itemset[i].stats.iter_list[k] > 0)
+							{
+								count++;
+								tmp[k] = 1;
+							}
+						}
+					}
+					if (count >= THRESHOLD)
+					{
+						next_itemset[next_index].stats.counter = count;
+						for (k = 0; k < ITER_NUM; k++)
+						{
+							next_itemset[next_index].stats.iter_list[k] = tmp[k];
+						}
+						for(p = 0; p <=s; p++)
+						{
+							next_itemset[next_index].items[p] = curr_itemset[i].items[p];
+						}
+						next_itemset[next_index].items[s+1] = curr_itemset[j].items[s];
+						next_index++;
+					}							
+				}
+			}
+		}
+	    // print out large itemset of size s+2
+   		printf("Thread ID = %d, large itemset of size %d: \n", tid, s+2);
+    	for (i = 0; i < next_index; i++)
+    	{
+        	for(j = 0; j < s+2; j++)
+			{
+				printf("%c",next_itemset[i].items[j]+97);
+			}
+			printf(" ");
+    	}
+    	printf("\n");
+
+		// copy next_itemset to curr_itemset and starts the next round
+		index = next_index;
+		for (i = 0; i < next_index; i++)
+		{
+			curr_itemset[i].stats.counter = next_itemset[i].stats.counter;
+			for (k = 0; k < ITER_NUM; k++)
+			{
+				curr_itemset[i].stats.iter_list[k] = next_itemset[i].stats.iter_list[k];
+			}
+			for (k = 0; k < s+2; k++)
+			{
+				curr_itemset[i].items[k] = next_itemset[i].items[k];
+			}
+		}
+		next_index = 0;
+	}
 	pthread_exit((void*) 0);
 }
