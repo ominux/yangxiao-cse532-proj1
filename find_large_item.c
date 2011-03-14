@@ -15,6 +15,15 @@ void *find_large_item(void *arg)
 	int		end;
 	int 	tid;
 	int		char_num;
+	int s,p;
+    int flag;
+    int next_index = 0;
+    int count;
+    int tmp[ITER_NUM];
+    int index_i = 0;
+    int index_j = 0;
+	int index = 0;
+
 
 	CELLDATA 	local_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
 	LIST		curr_itemset[LIST_SIZE];
@@ -61,8 +70,6 @@ void *find_large_item(void *arg)
 			}
 			for (k = j + 1; k < char_num + 1; k++)
 			{
-				int index_i = 0;
-				int index_j = 0;
 				if (original_array[i][j] < original_array[i][k])
 				{
 					index_i = original_array[i][j] - 97;
@@ -113,11 +120,11 @@ void *find_large_item(void *arg)
 	
 	// Synchronization point: wait for all peers to finish updating global_array 
 	int sync = pthread_barrier_wait(&barr);
-	if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
+	/*if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
 	{
 		printf("Could not wait on barrier\n");
 		exit(-1);
-	}
+	}*/
 	if (DEBUG_2)
 	{
 		pthread_mutex_lock(&mutexsum);
@@ -134,7 +141,6 @@ void *find_large_item(void *arg)
 	{
 		printf("Thread ID: %d, start = %d, end = %d \n", tid, start, end);
 	}
-	int index = 0;
 	for (i = start; i < end; i++)
 	{
 		for (j = 0; j < ARRAY_COL_NUM; j++)
@@ -162,11 +168,6 @@ void *find_large_item(void *arg)
 		}
 		printf("\n");
 	}
-	int s,p;
-	int flag;
-	int next_index = 0; 
-	int count;
-	int tmp[ITER_NUM];
 	// Each thread generates large itemset of size s (s>=3) and print them out
 	for (s = 1; s < MAX_ITEM_SIZE -1; s++)
 	{
