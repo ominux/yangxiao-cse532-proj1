@@ -5,10 +5,10 @@ data_gen.exe : data_gen.c
 
 
 main.exe : main.o find_large_item.o data_read.o merge_sort.o print.o
-	gcc main.o find_large_item.o data_read.o merge_sort.o print.o -pthread -o main.exe
+	gcc main.o find_large_item.o data_read.o merge_sort.o print.o -lpthread -o main.exe
 
 main.o : main.c
-	gcc -c main.c
+	gcc -c main.c 
 
 data_read.o : data_read.c
 	gcc -c data_read.c
