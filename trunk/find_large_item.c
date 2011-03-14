@@ -153,13 +153,15 @@ void *find_large_item(void *arg)
 		}
 	}
 	// print out large itemset of size 2
-	printf("Thread ID = %d, large itemset of size 2: \n", tid);
-	for (i = 0; i < index; i++)
+	if (DEBUG_5)
 	{
-		printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
+		printf("Thread ID = %d, large itemset of size 2: \n", tid);
+		for (i = 0; i < index; i++)
+		{
+			printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
+		}
+		printf("\n");
 	}
-	printf("\n");
-
 	int s,p;
 	int flag;
 	int next_index = 0; 
@@ -223,16 +225,19 @@ void *find_large_item(void *arg)
 			}
 		}
 	    // print out large itemset of size s+2
-   		printf("Thread ID = %d, large itemset of size %d: \n", tid, s+2);
-    	for (i = 0; i < next_index; i++)
-    	{
-        	for(j = 0; j < s+2; j++)
-			{
-				printf("%c",next_itemset[i].items[j]+97);
-			}
-			printf(" ");
-    	}
-    	printf("\n");
+		if (DEBUG_5)
+		{
+   			printf("Thread ID = %d, large itemset of size %d: \n", tid, s+2);
+    		for (i = 0; i < next_index; i++)
+    		{
+        		for(j = 0; j < s+2; j++)
+				{
+					printf("%c",next_itemset[i].items[j]+97);
+				}
+				printf(" ");
+    		}
+    		printf("\n");
+		}
 
 		// copy next_itemset to curr_itemset and starts the next round
 		index = next_index;
