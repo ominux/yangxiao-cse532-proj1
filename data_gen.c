@@ -30,6 +30,11 @@ int main (int argc, char *argv[])
 	fgets(max_str, 256, stdin);
 	max_num	= atoi(max_str);*/
 	
+	printf("Enter ITER_NUM: \n");
+	scanf("%d", &ITER_NUM);
+
+	printf("Enter CHAR_NUM: \n");
+	scanf("%d", &CHAR_NUM);
 	//fprintf(fp, "%d\n", iter_num);
 	for (i = 0; i < ITER_NUM; i++)
 	{

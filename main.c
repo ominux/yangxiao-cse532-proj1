@@ -17,7 +17,24 @@ int main(void)
 	int k = 0;
 	int threshold = 0;
 	void *status;
+	
+	// ------------------------------
+	// Initialize global
+	// ------------------------------
+	//	printf("Enter ITER_NUM: \n");
+	//	scanf("%d", &ITER_NUM);
 
+	//	printf("Enter CHAR_NUM: \n");
+	//	scanf("%d", &CHAR_NUM);
+
+	printf("Enter PROCESSOR_NUM: \n");
+	scanf("%d", &PROCESSOR_NUM);
+
+	printf("Enter THRESHOLD: \n");
+	scanf("%d", &THRESHOLD);
+
+	MAX_ITEM_SIZE	= CHAR_NUM;
+	BARRIER_LMT		= PROCESSOR_NUM;
 	barrier_counter = 0;	// clear the counter
 
 	// Read the data from TXT file
