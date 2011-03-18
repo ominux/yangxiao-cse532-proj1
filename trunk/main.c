@@ -18,6 +18,8 @@ int main(void)
 	int threshold = 0;
 	void *status;
 
+	barrier_counter = 0;	// clear the counter
+
 	// Read the data from TXT file
 	if (data_read() == 0)
 	{
