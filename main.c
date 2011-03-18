@@ -16,6 +16,9 @@ int main(void)
 	int j = 0;
 	int k = 0;
 	int threshold = 0;
+	pthread_attr_t attr;
+    pthread_t thread[PROCESSOR_NUM];
+
 	void *status;
 	
 	// ------------------------------
@@ -48,15 +51,13 @@ int main(void)
 		printf("ITER_NUM: %d, PROCESSOR_NUM: %d\n", ITER_NUM, PROCESSOR_NUM);	
 	}
 
-    	pthread_attr_t attr;
-	pthread_t thread[PROCESSOR_NUM];
 		
 	// Barrier initialization
-	if (pthread_barrier_init(&barr, NULL, PROCESSOR_NUM))
+	/*if (pthread_barrier_init(&barr, NULL, PROCESSOR_NUM))
 	{
 		printf("Could not creat a barrier\n");
 		return -1;
-	}	
+	}*/	
 
 	// Initialize the global array
 	for (i = 0; i < ARRAY_ROW_NUM; i++)
