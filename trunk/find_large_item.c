@@ -119,7 +119,7 @@ void *find_large_item(void *arg)
 	// Increase barrier counter
 	// -----------------------------
 	barrier_counter++;
-	printf("barrier_counter: %d\n", barrier_counter);
+	//printf("barrier_counter: %d\n", barrier_counter);
 	
 	pthread_mutex_unlock(&mutexsum);
 	
@@ -133,7 +133,7 @@ void *find_large_item(void *arg)
 	while (barrier_counter < BARRIER_LMT)
 	{
 	}
-
+	//printf("out of loop! thread id = %d \n", tid);
 	/*if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
 	{
 		printf("Could not wait on barrier\n");
