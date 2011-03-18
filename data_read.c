@@ -33,11 +33,13 @@ int data_read(void)
     fclose(fp);
 
 	// Merge sort
+	/*
 	for (i = 0; i < ITER_NUM; i++)
 	{
 		char_num = original_array[i][0];
 		merge_sort(&original_array[i][0], 1, char_num);
 	}
+	*/
 
 	// Debug code
 	if (DEBUG_1)
@@ -46,6 +48,7 @@ int data_read(void)
 		for (i = 0; i < ITER_NUM; i++)
 		{
 			char_num = original_array[i][0];
+			printf("%d\n", i);
 			printf("%d\t", char_num);
 			for (j = 1; j < char_num + 1; j++)
 			{   

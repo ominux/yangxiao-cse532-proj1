@@ -115,11 +115,25 @@ void *find_large_item(void *arg)
 		printf("Start: %d, End: %d\n", start, end);
 		print_ARRAY(local_array);
 	}
-
+	// -----------------------------
+	// Increase barrier counter
+	// -----------------------------
+	barrier_counter++;
+	printf("barrier_counter: %d\n", barrier_counter);
+	
 	pthread_mutex_unlock(&mutexsum);
 	
 	// Synchronization point: wait for all peers to finish updating global_array 
-	int sync = pthread_barrier_wait(&barr);
+	//int sync = pthread_barrier_wait(&barr);
+
+
+	// -----------------------------
+	// Wait for barrier counter
+	// -----------------------------
+	while (barrier_counter < BARRIER_LMT)
+	{
+	}
+
 	/*if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
 	{
 		printf("Could not wait on barrier\n");
