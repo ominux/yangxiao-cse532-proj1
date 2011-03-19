@@ -9,13 +9,13 @@
 	#define CHAR_NUM_MAX    26	// Maximum char number for each iteration
 	#define ARRAY_ROW_NUM	26
 	#define ARRAY_COL_NUM	26
-	#define LIST_SIZE       10000
+	#define LIST_SIZE       1000
 	// DEBUG LEVEL
 	#define DEBUG_1			0	// Display read in data array
 	#define DEBUG_2			0	// Display global_array
 	#define DEBUG_3			0	// Display local_array counter
 	#define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
-	#define DEBUG_5			0  	// Display itemset output info
+	#define DEBUG_5			0 	// Display itemset output info
 
 	// Global Variables
 	pthread_mutex_t mutexsum;
