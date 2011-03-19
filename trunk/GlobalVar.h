@@ -9,7 +9,7 @@
 	#define CHAR_NUM_MAX    26	// Maximum char number for each iteration
 	#define ARRAY_ROW_NUM	26
 	#define ARRAY_COL_NUM	26
-	#define LIST_SIZE       1000
+	#define LIST_SIZE       10000
 	// DEBUG LEVEL
 	#define DEBUG_1			0	// Display read in data array
 	#define DEBUG_2			0	// Display global_array
@@ -32,11 +32,11 @@
 	int BARRIER_LMT;
 	int barrier_counter;	//barrier counter used for sync all the threads.
 
-	char 		original_array[700][CHAR_NUM_MAX + 1];
+	char 		original_array[100][CHAR_NUM_MAX + 1];
 	typedef struct
 	{
 		int		counter;
-		int		iter_list[700];
+		int		iter_list[100];
 	} CELLDATA;
 	CELLDATA 	global_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
 	
