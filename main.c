@@ -24,11 +24,11 @@ int main(void)
 	// ------------------------------
 	// Initialize global
 	// ------------------------------
-	//	printf("Enter ITER_NUM: \n");
-	//	scanf("%d", &ITER_NUM);
+		printf("Enter ITER_NUM: \n");
+		scanf("%d", &ITER_NUM);
 
-	//	printf("Enter CHAR_NUM: \n");
-	//	scanf("%d", &CHAR_NUM);
+		printf("Enter CHAR_NUM: \n");
+		scanf("%d", &CHAR_NUM);
 
 	printf("Enter PROCESSOR_NUM: \n");
 	scanf("%d", &PROCESSOR_NUM);
