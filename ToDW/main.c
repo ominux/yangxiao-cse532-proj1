@@ -3,66 +3,59 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define CHAR_NUM_MAX    26	
-#define ARRAY_ROW_NUM	26
-#define ARRAY_COL_NUM	26
-#define LIST_SIZE       1000
+#define LISTSIZE       1000
 // DEBUG LEVEL
 #define DEBUG_1			1	// Display read in data array
-#define DEBUG_2			0	// Display global_array
+#define DEBUG_2			0	// Display wholedata
 #define DEBUG_3			0	// Display local_array counter
 #define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
 #define DEBUG_5			1 	// Display itemset output info
 
-// Global Variables
-pthread_mutex_t mutexsum;
+pthread_mutex_t thread_lock;
 
 
 
 // Input needed global variables
-int ITER_NUM;
-int CHAR_NUM;
-int PROCESSOR_NUM;
+int xfernum;
+int itemnum;
+int procnum;
 int THRESHOLD;
-int MAX_ITEM_SIZE;
-int BARRIER_LMT;
-int barrier_counter;
+int mis;
+int bcmax;
+int bc;
 
-char original_array[100][CHAR_NUM_MAX + 1];
+char rawdata[100][26 + 1];
 typedef struct
 {
 	int	counter;
-	int	iter_list[100];
-} CELLDATA;
-CELLDATA 	global_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
+	int	xferrec[100];
+} cell;
+
+cell wholedata[26][26];
 
 typedef struct
 {
-	CELLDATA stats;
-	int items[CHAR_NUM_MAX];
-} LIST;
-
-
-
+	cell stats;
+	int items[26];
+} list;
 
 
 // Function declearation
-void *find_large_item(void *arg);
-void print_ARRAY(CELLDATA array[ARRAY_ROW_NUM][ARRAY_COL_NUM]);
+void *large(void *arg);
+void showarray(cell array[26][26]);
 
 int main(void)
 {
 	int		i = 0;
 	int		j = 0;
 	int		k = 0;
-	int		threshold = 0;
-	int		tag_list[CHAR_NUM_MAX];
-	int		char_num;
+	int		tag_list[26];
+	int		realitemnum;
 
-	char 	rand_char	= ' ';
+	char 	tempitem	= ' ';
 	
 	pthread_attr_t attr;
-    pthread_t thread[PROCESSOR_NUM];
+    pthread_t thread[procnum];
 
 	void *status;
 	
@@ -70,39 +63,38 @@ int main(void)
 	// Initialize global
 	// ------------------------------
 	/*
-	printf("Enter ITER_NUM: \n");
-	scanf("%d", &ITER_NUM);
+	printf("Enter xfernum: \n");
+	scanf("%d", &xfernum);
 
-	printf("Enter CHAR_NUM: \n");
-	scanf("%d", &CHAR_NUM);
+	printf("Enter itemnum: \n");
+	scanf("%d", &itemnum);
 
-	printf("Enter PROCESSOR_NUM: \n");
-	scanf("%d", &PROCESSOR_NUM);
+	printf("Enter procnum: \n");
+	scanf("%d", &procnum);
 
 	printf("Enter THRESHOLD: \n");
 	scanf("%d", &THRESHOLD);
 	*/
-	ITER_NUM 		= 20;
-	CHAR_NUM		= 5;
-	PROCESSOR_NUM	= 5;
-	THRESHOLD		= 1;
+	xfernum 	= 20;
+	itemnum		= 5;
+	procnum		= 5;
+	THRESHOLD	= 1;
 
 
-	MAX_ITEM_SIZE	= CHAR_NUM;
-	BARRIER_LMT		= PROCESSOR_NUM;
-	barrier_counter = 0;	// clear the counter
+	mis		= itemnum;
+	bcmax	= procnum;
+	bc 		= 0;	
 
 	// Generate raw data array
-	for (i = 0; i < ITER_NUM; i++)
+	for (i = 0; i < xfernum; i++)
 	{
-		for (j = 0; j < CHAR_NUM_MAX; j++)
+		for (j = 0; j < 26; j++)
 		{
 			tag_list[j] = 0;
 		}
-		char_num = rand() % CHAR_NUM + 1;
-		original_array[i][0] = char_num;
-		//fprintf(fp, "%d\t", char_num);
-		for (j = 1; j < char_num + 1; j++)
+		realitemnum = rand() % itemnum + 1;
+		rawdata[i][0] = realitemnum;
+		for (j = 1; j < realitemnum + 1; j++)
 		{
 			int temp;
 			do
@@ -111,77 +103,67 @@ int main(void)
 			}
 			while (tag_list[temp]);
 			tag_list[temp] = 1;	
-			rand_char = (char) (temp + 97);
-			original_array[i][j] = rand_char;
+			tempitem = (char) (temp + 97);
+			rawdata[i][j] = tempitem;
 		}
 	}
 	
 	// Verify the raw data array
-	printf("READ IN ARRAY:\n");
-	for (i = 0; i < ITER_NUM; i++)
+	/*for (i = 0; i < xfernum; i++)
 	{
-		char_num = original_array[i][0];
-		printf("%d\t", char_num);
-		for (j = 1; j < char_num + 1; j++)
+		realitemnum = rawdata[i][0];
+		printf("%d\t", realitemnum);
+		for (j = 1; j < realitemnum + 1; j++)
 		{   
-			printf("%c\t", original_array[i][j]);
+			printf("%c\t", rawdata[i][j]);
 		}   
 		printf("\n");   
-	}
-
-		
-	if (DEBUG_1 || DEBUG_2 || DEBUG_3)
-	{	
-		printf("ITER_NUM: %d, PROCESSOR_NUM: %d\n", ITER_NUM, PROCESSOR_NUM);	
-	}
-
-		
+	}*/
 
 	// Initialize the global array
-	for (i = 0; i < ARRAY_ROW_NUM; i++)
+	for (i = 0; i < 26; i++)
 	{
-		for (j = 0; j < ARRAY_COL_NUM; j++)
+		for (j = 0; j < 26; j++)
 		{
-			global_array[i][j].counter = 0;
-			for (k = 0; k < ITER_NUM; k++)
+			wholedata[i][j].counter = 0;
+			for (k = 0; k < xfernum; k++)
 			{
-				global_array[i][j].iter_list[k] = 0;
+				wholedata[i][j].xferrec[k] = 0;
 			}
 		}
 	}	
 	
 	// Begin to process the raw data and find all two-item pair
-	pthread_mutex_init(&mutexsum, NULL);
+	pthread_mutex_init(&thread_lock, NULL);
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	
-	for (i = 0; i < PROCESSOR_NUM; i++)
+	for (i = 0; i < procnum; i++)
 	{
-		if (pthread_create(&thread[i], &attr, find_large_item, (void *)((long) i)))
+		if (pthread_create(&thread[i], &attr, large, (void *)((long) i)))
 		{
-			printf("Could not create thread %d\n", i);
-			return -1;
+			printf("THREAD CREATION ERROR! %d\n", i);
+			return 0;
 		}
 	}
-	
 	pthread_attr_destroy(&attr);
 
-	for (i = 0; i < PROCESSOR_NUM; i++)
+	for (i = 0; i < procnum; i++)
 	{
 		if (pthread_join(thread[i], &status))
 		{
-			printf("Could not join thread %d\n", i);
-			return -1;
+			printf("THREAD JOIN ERROR! %d\n", i);
+			return 0;
 		}
 	}
 		
-	pthread_mutex_destroy(&mutexsum);
+	pthread_mutex_destroy(&thread_lock);
 	
 	// Debug code
 	if (DEBUG_2)
 	{	
 		printf("main thread: global counter & list\n");
-		print_ARRAY(global_array);
+		showarray(wholedata);
 	}
 	
 	pthread_exit(NULL);
@@ -189,43 +171,34 @@ int main(void)
 
 
 
-void *find_large_item(void *arg)
+void *large(void *arg)
 {
-	int 	i;
-	int		j;
-	int		k;
-	int		start;
-	int		end;
-	int 	tid;
-	int		char_num;
-	int 	s,p;
-    int 	flag;
+	int 	i, j, k, s, p;
+	int		start, end, flag, count;
+	int 	threadid, realitemnum;
     int 	next_index = 0;
-    int 	count;
-    int 	tmp[ITER_NUM];
+    int 	tmp[xfernum];
     int 	index_i = 0;
     int 	index_j = 0;
 	int 	index = 0;
-
-
-	CELLDATA 	local_array[ARRAY_ROW_NUM][ARRAY_COL_NUM];
-	LIST		curr_itemset[LIST_SIZE];
-	LIST		next_itemset[LIST_SIZE];
+	cell 	local_array[26][26];
+	list	curr_itemset[LISTSIZE];
+	list	next_itemset[LISTSIZE];
 		
-	tid 	= (int)((long) arg);
-	start 	= tid * ITER_NUM / PROCESSOR_NUM;	
-	end		= (tid + 1) * ITER_NUM / PROCESSOR_NUM;
+	threadid 	= (int)((long) arg);
+	start 	= threadid * xfernum / procnum;	
+	end		= (threadid + 1) * xfernum / procnum;
 	
 	
 	// Initialzie local_array, clear counter and iteration list
-	for (i = 0; i < ARRAY_ROW_NUM; i++)
+	for (i = 0; i < 26; i++)
 	{
-		for (j = 0; j < ARRAY_COL_NUM; j++)
+		for (j = 0; j < 26; j++)
 		{
 			local_array[i][j].counter = 0;
-			for (k = 0; k < ITER_NUM; k++)
+			for (k = 0; k < xfernum; k++)
 			{
-				local_array[i][j].iter_list[k] = 0;
+				local_array[i][j].xferrec[k] = 0;
 			}
 		}
 	}	
@@ -233,60 +206,60 @@ void *find_large_item(void *arg)
 	// Scan the raw data from the start iter to end iter
 	if (DEBUG_4)
 	{
-		printf("Thread ID: %d Local Array --> Detail:\n", tid);
+		printf("Thread ID: %d Local Array --> Detail:\n", threadid);
 		printf("Start: %d, End: %d\n", start, end);
 	}
 	
 	// Begin to process data
 	for (i = start; i < end; i++)
 	{
-		char_num = original_array[i][0];
+		realitemnum = rawdata[i][0];
 		if (DEBUG_4)
 		{
-			printf("Char_num: %d\n", char_num);
+			printf("Char_num: %d\n", realitemnum);
 		}
-		for (j = 1; j < char_num + 1; j++)
+		for (j = 1; j < realitemnum + 1; j++)
 		{
 			if (DEBUG_4)
 			{
-				printf("I: %d, J: %d, Original_Array[i][j]: %c\n", i, j, original_array[i][j]);
+				printf("I: %d, J: %d, Original_Array[i][j]: %c\n", i, j, rawdata[i][j]);
 			}
-			for (k = j + 1; k < char_num + 1; k++)
+			for (k = j + 1; k < realitemnum + 1; k++)
 			{
-				if (original_array[i][j] < original_array[i][k])
+				if (rawdata[i][j] < rawdata[i][k])
 				{
-					index_i = original_array[i][j] - 97;
-					index_j = original_array[i][k] - 97;
+					index_i = rawdata[i][j] - 97;
+					index_j = rawdata[i][k] - 97;
 					local_array[index_i][index_j].counter++;
-					local_array[index_i][index_j].iter_list[i] = 1;
+					local_array[index_i][index_j].xferrec[i] = 1;
 				}
-				else if (original_array[i][j] > original_array[i][k])
+				else if (rawdata[i][j] > rawdata[i][k])
 				{
-					index_i = original_array[i][k] - 97;
-					index_j = original_array[i][j] - 97;
+					index_i = rawdata[i][k] - 97;
+					index_j = rawdata[i][j] - 97;
 					local_array[index_i][index_j].counter++;
-					local_array[index_i][index_j].iter_list[i] = 1;
+					local_array[index_i][index_j].xferrec[i] = 1;
 				}
 	
 				if (DEBUG_4)
 				{
-					printf("Original_Array[i][k]: %c, Index_I: %d, Index_J: %d, Couter: %d, List: %d\n", original_array[i][k], index_i, index_j, local_array[index_i][index_j].counter, local_array[index_i][index_j].iter_list[i]);
+					printf("Original_Array[i][k]: %c, Index_I: %d, Index_J: %d, Couter: %d, List: %d\n", rawdata[i][k], index_i, index_j, local_array[index_i][index_j].counter, local_array[index_i][index_j].xferrec[i]);
 				}
 			}
 		}
 	}
 	
 	// Merge the local data to global data
-	pthread_mutex_lock(&mutexsum);
+	pthread_mutex_lock(&thread_lock);
 
-	for (i = 0; i < ARRAY_ROW_NUM; i++)
+	for (i = 0; i < 26; i++)
 	{
-		for (j = 0; j < ARRAY_COL_NUM; j++)
+		for (j = 0; j < 26; j++)
 		{
-			global_array[i][j].counter = global_array[i][j].counter + local_array[i][j].counter;
+			wholedata[i][j].counter = wholedata[i][j].counter + local_array[i][j].counter;
 			for (k = start; k < end; k++)
 			{
-				global_array[i][j].iter_list[k] = local_array[i][j].iter_list[k];
+				wholedata[i][j].xferrec[k] = local_array[i][j].xferrec[k];
 			}
 		}
 	}
@@ -294,86 +267,70 @@ void *find_large_item(void *arg)
 	// Debud code
 	if (DEBUG_3)
 	{
-		printf("Thread ID: %d Local Counter & List: \n", tid);
+		printf("Thread ID: %d Local Counter & List: \n", threadid);
 		printf("Start: %d, End: %d\n", start, end);
-		print_ARRAY(local_array);
+		showarray(local_array);
 	}
-	// -----------------------------
-	// Increase barrier counter
-	// -----------------------------
-	barrier_counter++;
-	//printf("barrier_counter: %d\n", barrier_counter);
+	bc++;
 	
-	pthread_mutex_unlock(&mutexsum);
-	
-	// Synchronization point: wait for all peers to finish updating global_array 
-	//int sync = pthread_barrier_wait(&barr);
+	pthread_mutex_unlock(&thread_lock);
 
-
-	// -----------------------------
-	// Wait for barrier counter
-	// -----------------------------
-	while (barrier_counter < BARRIER_LMT)
+	// Wait for global data renewed
+	while (bc < bcmax)
 	{
 	}
-	//printf("out of loop! thread id = %d \n", tid);
-	/*if (sync != 0 && sync != PTHREAD_BARRIER_SERIAL_THREAD)
-	{
-		printf("Could not wait on barrier\n");
-		exit(-1);
-	}*/
+	
 	if (DEBUG_2)
 	{
-		pthread_mutex_lock(&mutexsum);
+		pthread_mutex_lock(&thread_lock);
 		printf("After sync\n");
-        printf("Thread ID: %d Local Counter & List: \n", tid);
+        printf("Thread ID: %d Local Counter & List: \n", threadid);
         printf("Start: %d, End: %d\n", start, end);
-        print_ARRAY(global_array);
-		pthread_mutex_unlock(&mutexsum);
+        showarray(wholedata);
+		pthread_mutex_unlock(&thread_lock);
 	}
-	// Each thread reads the assigned part of the global_array, and generates itemsize of 2
-	start   = tid * ARRAY_ROW_NUM / PROCESSOR_NUM;
-    end     = (tid + 1) * ARRAY_ROW_NUM / PROCESSOR_NUM;
+	
+	start   = threadid * 26 / procnum;
+    end     = (threadid + 1) * 26 / procnum;
 	if (DEBUG_3)
 	{
-		printf("Thread ID: %d, start = %d, end = %d \n", tid, start, end);
+		printf("Thread ID: %d, start = %d, end = %d \n", threadid, start, end);
 	}
 	for (i = start; i < end; i++)
 	{
-		for (j = 0; j < ARRAY_COL_NUM; j++)
+		for (j = 0; j < 26; j++)
 		{
-			if (global_array[i][j].counter >= THRESHOLD)
+			if (wholedata[i][j].counter >= THRESHOLD)
 			{
 				curr_itemset[index].items[0] = i;
 				curr_itemset[index].items[1] = j;
-				curr_itemset[index].stats.counter = global_array[i][j].counter;
-				for (k = 0; k < ITER_NUM; k++)
+				curr_itemset[index].stats.counter = wholedata[i][j].counter;
+				for (k = 0; k < xfernum; k++)
 				{
-					curr_itemset[index].stats.iter_list[k] = global_array[i][j].iter_list[k];
+					curr_itemset[index].stats.xferrec[k] = wholedata[i][j].xferrec[k];
 				}
 			 	index++;
 			}
 		}
 	}
-	// print out large itemset of size 2
+	
 	if (DEBUG_5)
 	{
-		printf("Thread ID = %d, large itemset of size 2: \n", tid);
+		printf("Thread ID = %d, large itemset of size 2: \n", threadid);
 		for (i = 0; i < index; i++)
 		{
 			printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
 		}
 		printf("\n");
 	}
-	// Each thread generates large itemset of size s (s>=3) and print them out
-	for (s = 1; s < MAX_ITEM_SIZE -1; s++)
+	
+	for (s = 1; s < mis -1; s++)
 	{
 		for (i = 0; i < index-1; i++)
 		{
 			for (j = i+1; j < index; j++)
 			{
 				flag = 1;
-				// compare the first s characters and they have to match to be candidates
 				for (p = 0; p < s; p++)
 				{
 					if(curr_itemset[i].items[p] != curr_itemset[j].items[p])
@@ -384,21 +341,20 @@ void *find_large_item(void *arg)
 				}
 				if (!flag)
 				{
-					break; // provided that the lists are sorted alphabetically
+					break; 
 				} 
 				else
 				{
-					// find a candidate, now checks the transaction lists to see if they have enough appearances in common
 					count = 0;
-					for (k = 0; k < ITER_NUM; k++)
+					for (k = 0; k < xfernum; k++)
 					{
 						tmp[k] = 0;
 					}
-					for (k = 0; k < ITER_NUM; k++)
+					for (k = 0; k < xfernum; k++)
 					{
-						if (curr_itemset[i].stats.iter_list[k] == curr_itemset[j].stats.iter_list[k])
+						if (curr_itemset[i].stats.xferrec[k] == curr_itemset[j].stats.xferrec[k])
 						{
-							if (curr_itemset[i].stats.iter_list[k] > 0)
+							if (curr_itemset[i].stats.xferrec[k] > 0)
 							{
 								count++;
 								tmp[k] = 1;
@@ -408,9 +364,9 @@ void *find_large_item(void *arg)
 					if (count >= THRESHOLD)
 					{
 						next_itemset[next_index].stats.counter = count;
-						for (k = 0; k < ITER_NUM; k++)
+						for (k = 0; k < xfernum; k++)
 						{
-							next_itemset[next_index].stats.iter_list[k] = tmp[k];
+							next_itemset[next_index].stats.xferrec[k] = tmp[k];
 						}
 						for(p = 0; p <=s; p++)
 						{
@@ -422,10 +378,9 @@ void *find_large_item(void *arg)
 				}
 			}
 		}
-	    // print out large itemset of size s+2
 		if (DEBUG_5)
 		{
-   			printf("Thread ID = %d, large itemset of size %d: \n", tid, s+2);
+   			printf("Thread ID = %d, large itemset of size %d: \n", threadid, s+2);
     		for (i = 0; i < next_index; i++)
     		{
         		for(j = 0; j < s+2; j++)
@@ -437,14 +392,13 @@ void *find_large_item(void *arg)
     		printf("\n");
 		}
 
-		// copy next_itemset to curr_itemset and starts the next round
 		index = next_index;
 		for (i = 0; i < next_index; i++)
 		{
 			curr_itemset[i].stats.counter = next_itemset[i].stats.counter;
-			for (k = 0; k < ITER_NUM; k++)
+			for (k = 0; k < xfernum; k++)
 			{
-				curr_itemset[i].stats.iter_list[k] = next_itemset[i].stats.iter_list[k];
+				curr_itemset[i].stats.xferrec[k] = next_itemset[i].stats.xferrec[k];
 			}
 			for (k = 0; k < s+2; k++)
 			{
@@ -456,20 +410,20 @@ void *find_large_item(void *arg)
 	pthread_exit((void*) 0);
 }
 	
-void print_ARRAY(CELLDATA array[ARRAY_ROW_NUM][ARRAY_COL_NUM])
+void showarray(cell array[26][26])
 {
 	int i, j, k;
 	
-	for (i = 0; i < ARRAY_ROW_NUM; i++)
+	for (i = 0; i < 26; i++)
 	{
-		for (j = 0; j < ARRAY_COL_NUM; j++)
+		for (j = 0; j < 26; j++)
 		{
 			if (array[i][j].counter)
 			{
 				printf("Combination '%c%c' happen %d times at iteration: ", i + 97, j + 97, array[i][j].counter);
-				for (k = 0; k < ITER_NUM; k++)
+				for (k = 0; k < xfernum; k++)
 				{
-					if (array[i][j].iter_list[k])
+					if (array[i][j].xferrec[k])
 					{
 						printf("%d\t", k);
 					}
