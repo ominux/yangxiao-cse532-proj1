@@ -15,7 +15,7 @@
 	#define DEBUG_2			0	// Display global_array
 	#define DEBUG_3			0	// Display local_array counter
 	#define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
-	#define DEBUG_5			0 	// Display itemset output info
+	#define DEBUG_5			1 	// Display itemset output info
 
 	// Global Variables
 	pthread_mutex_t mutexsum;
