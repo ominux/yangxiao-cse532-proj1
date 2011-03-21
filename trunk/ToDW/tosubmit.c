@@ -34,7 +34,6 @@ typedef struct
 
 // Function declearation
 void *large(void *arg);
-//void showarray(cell array[30][30]);
 
 int main()
 {
@@ -49,18 +48,10 @@ int main()
 	// Initialize global
 	// ------------------------------
 	
-	printf("Enter xfernum: \n");
-	scanf("%d", &xfernum);
+	printf("Enter xfernum, iternum, procnum, THRESHOLD: \n");
+	scanf("%d, %d, %d, %d", &xfernum, &itemnum, &procnum, &THRESHOLD);
 
-	printf("Enter itemnum: \n");
-	scanf("%d", &itemnum);
-
-	printf("Enter procnum: \n");
-	scanf("%d", &procnum);
-
-	printf("Enter THRESHOLD: \n");
-	scanf("%d", &THRESHOLD);
-
+	//printf("%d, %d, %d, %d\n", xfernum, itemnum, procnum, THRESHOLD);
 	mis		= itemnum;
 	bcmax	= procnum;
 	bc 		= 0;	
@@ -299,28 +290,3 @@ void *large(void *arg)
 	pthread_exit((void*) 0);
 }
 	
-/*
-void showarray(cell array[30][30])
-{
-	int i, j, k;
-	
-	for (i = 0; i < 30; i++)
-	{
-		for (j = 0; j < 30; j++)
-		{
-			if (array[i][j].counter)
-			{
-				printf("Dataset '%d,%d' happened %d times @ xfer: ", i, j, array[i][j].counter);
-				for (k = 0; k < xfernum; k++)
-				{
-					if (array[i][j].xferrec[k])
-					{
-						printf("%d\t", k);
-					}
-				}
-				printf("\n");
-			}
-		}
-	}
-}
-*/
