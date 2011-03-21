@@ -7,7 +7,7 @@
 // DEBUG LEVEL
 #define DEBUG_1			1	// Display read in data array
 #define DEBUG_2			0	// Display wholedata
-#define DEBUG_3			0	// Display local_array counter
+#define DEBUG_3			1	// Display local_array counter
 #define DEBUG_4			0	// Display local_array detail computation, seldom use, need to combine with Thread ID when use
 #define DEBUG_5			1 	// Display itemset output info
 
@@ -24,35 +24,33 @@ int mis;
 int bcmax;
 int bc;
 
-char rawdata[100][26 + 1];
+int rawdata[100][30 + 1];
 typedef struct
 {
 	int	counter;
 	int	xferrec[100];
 } cell;
 
-cell wholedata[26][26];
+cell wholedata[30][30];
 
 typedef struct
 {
 	cell stats;
-	int items[26];
+	int items[30];
 } list;
 
 
 // Function declearation
 void *large(void *arg);
-void showarray(cell array[26][26]);
+void showarray(cell array[30][30]);
 
 int main(void)
 {
 	int		i = 0;
 	int		j = 0;
 	int		k = 0;
-	int		tag_list[26];
-	int		realitemnum;
-
-	char 	tempitem	= ' ';
+	int		tag_list[30];
+	int		realitemnum = 0;
 	
 	pthread_attr_t attr;
     pthread_t thread[procnum];
@@ -88,7 +86,7 @@ int main(void)
 	// Generate raw data array
 	for (i = 0; i < xfernum; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			tag_list[j] = 0;
 		}
@@ -99,31 +97,30 @@ int main(void)
 			int temp;
 			do
 			{
-				temp = rand() % 26;
+				temp = rand() % 30;
 			}
 			while (tag_list[temp]);
 			tag_list[temp] = 1;	
-			tempitem = (char) (temp + 97);
-			rawdata[i][j] = tempitem;
+			rawdata[i][j] = temp;
 		}
 	}
 	
 	// Verify the raw data array
-	/*for (i = 0; i < xfernum; i++)
+	for (i = 0; i < xfernum; i++)
 	{
 		realitemnum = rawdata[i][0];
 		printf("%d\t", realitemnum);
 		for (j = 1; j < realitemnum + 1; j++)
 		{   
-			printf("%c\t", rawdata[i][j]);
+			printf("%d\t", rawdata[i][j]);
 		}   
 		printf("\n");   
-	}*/
+	}
 
 	// Initialize the global array
-	for (i = 0; i < 26; i++)
+	for (i = 0; i < 30; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			wholedata[i][j].counter = 0;
 			for (k = 0; k < xfernum; k++)
@@ -156,7 +153,6 @@ int main(void)
 			return 0;
 		}
 	}
-		
 	pthread_mutex_destroy(&thread_lock);
 	
 	// Debug code
@@ -181,7 +177,7 @@ void *large(void *arg)
     int 	index_i = 0;
     int 	index_j = 0;
 	int 	index = 0;
-	cell 	local_array[26][26];
+	cell 	local_array[30][30];
 	list	curr_itemset[LISTSIZE];
 	list	next_itemset[LISTSIZE];
 		
@@ -191,9 +187,9 @@ void *large(void *arg)
 	
 	
 	// Initialzie local_array, clear counter and iteration list
-	for (i = 0; i < 26; i++)
+	for (i = 0; i < 30; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			local_array[i][j].counter = 0;
 			for (k = 0; k < xfernum; k++)
@@ -222,28 +218,28 @@ void *large(void *arg)
 		{
 			if (DEBUG_4)
 			{
-				printf("I: %d, J: %d, Original_Array[i][j]: %c\n", i, j, rawdata[i][j]);
+				printf("I: %d, J: %d, Original_Array[i][j]: %d\n", i, j, rawdata[i][j]);
 			}
 			for (k = j + 1; k < realitemnum + 1; k++)
 			{
 				if (rawdata[i][j] < rawdata[i][k])
 				{
-					index_i = rawdata[i][j] - 97;
-					index_j = rawdata[i][k] - 97;
+					index_i = rawdata[i][j];
+					index_j = rawdata[i][k];
 					local_array[index_i][index_j].counter++;
 					local_array[index_i][index_j].xferrec[i] = 1;
 				}
 				else if (rawdata[i][j] > rawdata[i][k])
 				{
-					index_i = rawdata[i][k] - 97;
-					index_j = rawdata[i][j] - 97;
+					index_i = rawdata[i][k];
+					index_j = rawdata[i][j];
 					local_array[index_i][index_j].counter++;
 					local_array[index_i][index_j].xferrec[i] = 1;
 				}
 	
 				if (DEBUG_4)
 				{
-					printf("Original_Array[i][k]: %c, Index_I: %d, Index_J: %d, Couter: %d, List: %d\n", rawdata[i][k], index_i, index_j, local_array[index_i][index_j].counter, local_array[index_i][index_j].xferrec[i]);
+					printf("Original_Array[i][k]: %d, Index_I: %d, Index_J: %d, Couter: %d, List: %d\n", rawdata[i][k], index_i, index_j, local_array[index_i][index_j].counter, local_array[index_i][index_j].xferrec[i]);
 				}
 			}
 		}
@@ -252,9 +248,9 @@ void *large(void *arg)
 	// Merge the local data to global data
 	pthread_mutex_lock(&thread_lock);
 
-	for (i = 0; i < 26; i++)
+	for (i = 0; i < 30; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			wholedata[i][j].counter = wholedata[i][j].counter + local_array[i][j].counter;
 			for (k = start; k < end; k++)
@@ -290,15 +286,15 @@ void *large(void *arg)
 		pthread_mutex_unlock(&thread_lock);
 	}
 	
-	start   = threadid * 26 / procnum;
-    end     = (threadid + 1) * 26 / procnum;
+	start   = threadid * 30 / procnum;
+    end     = (threadid + 1) * 30 / procnum;
 	if (DEBUG_3)
 	{
 		printf("Thread ID: %d, start = %d, end = %d \n", threadid, start, end);
 	}
 	for (i = start; i < end; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			if (wholedata[i][j].counter >= THRESHOLD)
 			{
@@ -319,7 +315,7 @@ void *large(void *arg)
 		printf("Thread ID = %d, large itemset of size 2: \n", threadid);
 		for (i = 0; i < index; i++)
 		{
-			printf("%c%c ",curr_itemset[i].items[0]+97, curr_itemset[i].items[1]+97);
+			printf("%d,%d ",curr_itemset[i].items[0], curr_itemset[i].items[1]);
 		}
 		printf("\n");
 	}
@@ -385,9 +381,9 @@ void *large(void *arg)
     		{
         		for(j = 0; j < s+2; j++)
 				{
-					printf("%c",next_itemset[i].items[j]+97);
+					printf("%d ",next_itemset[i].items[j]);
 				}
-				printf(" ");
+				printf("; ");
     		}
     		printf("\n");
 		}
@@ -410,17 +406,17 @@ void *large(void *arg)
 	pthread_exit((void*) 0);
 }
 	
-void showarray(cell array[26][26])
+void showarray(cell array[30][30])
 {
 	int i, j, k;
 	
-	for (i = 0; i < 26; i++)
+	for (i = 0; i < 30; i++)
 	{
-		for (j = 0; j < 26; j++)
+		for (j = 0; j < 30; j++)
 		{
 			if (array[i][j].counter)
 			{
-				printf("Combination '%c%c' happen %d times at iteration: ", i + 97, j + 97, array[i][j].counter);
+				printf("Combination '%d,%d' happen %d times at iteration: ", i, j, array[i][j].counter);
 				for (k = 0; k < xfernum; k++)
 				{
 					if (array[i][j].xferrec[k])
