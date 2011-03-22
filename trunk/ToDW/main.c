@@ -60,7 +60,7 @@ int main(void)
 	// ------------------------------
 	// Initialize global
 	// ------------------------------
-	/*
+
 	printf("Enter xfernum: \n");
 	scanf("%d", &xfernum);
 
@@ -72,12 +72,13 @@ int main(void)
 
 	printf("Enter THRESHOLD: \n");
 	scanf("%d", &THRESHOLD);
-	*/
+
+	/*
 	xfernum 	= 20;
 	itemnum		= 5;
 	procnum		= 5;
 	THRESHOLD	= 1;
-
+	*/
 
 	mis		= itemnum;
 	bcmax	= procnum;
