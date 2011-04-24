@@ -513,7 +513,7 @@ handle_read(generic_cache_t *gc, generic_transaction_t *mem_op,
 	int home_id = index / range;
 	int i;	
 
-	if ((index<low || index>high) && (dir_state[index][myid] != 1)) // block in other quads
+	if ((index<low || index>high) && (dir_sharelist[index][myid] != 1)) // block in other quads
 	{
 		penalty += gc->penalty.read * REMOTE_FACTOR;
 		switch (dir_state[index][home_id])
@@ -530,8 +530,9 @@ handle_read(generic_cache_t *gc, generic_transaction_t *mem_op,
 				dir_state[index][myid] = 1;
 				break;
 			case 2: //gone
-				penalty += gc->penalty.read * REMOTE_FACTOR;
-				
+				penalty += gc->penalty.read * REMOTE_FACTOR * 2;
+				dir_sharelist[index][myid] = 1;
+				dir_state[index][myid] = 3; //dirty
 				break;
 			default:
 				break;
@@ -539,7 +540,25 @@ handle_read(generic_cache_t *gc, generic_transaction_t *mem_op,
 	}
 	else // block in local quad
 	{
-		
+		switch (dir_state[index][home_id])
+		{
+			case 0: //home
+				dir_state[index][home_id] = 1;
+				dir_sharelist[index][myid] = 1;
+				dir_state[index][myid] = 1;
+				break;
+			case 1: //fresh
+				dir_sharelist[index][myid] = 1;
+				dir_state[index][myid] = 1;
+				break;
+			case 2: //gone
+				penalty += gc->penalty.read * REMOTE_FACTOR * 2;
+				dir_sharelist[index][myid] = 1;
+				dir_state[index][myid] = 3; //dirty
+				break;
+			default:
+				break;
+		}
 	}
 
         /* Update the statistics. */
@@ -652,6 +671,59 @@ handle_write(generic_cache_t *gc, generic_transaction_t *mem_op,
         int penalty = 0;
         int line_num;
         
+	int myid = 0; //need to get current core id
+	int range = NBLOCK/QUAD;
+	int low = myid*range;
+	int high = (myid+1)*range;
+	/* Di: check if it is local or remote */
+	int index = mem_op->physical_address % NBLOCK;
+	int home_id = index / range;
+	int i;	
+
+	// block not in share list
+	if ((index<low || index>high) && (dir_sharelist[index][myid] != 1)) 
+	{
+		//list construction
+		penalty += gc->penalty.read * REMOTE_FACTOR*2; //add to list and get a copy of block
+		dir_sharelist[index][myid] = 1;
+		dir_state[index][myid] = 1;		
+	}
+
+	//block already in the share list
+	switch (dir_state[index][myid])
+	{
+		case 1: //shared
+			dir_state[index][home_id] = 2; // make sure home is in gone state
+			dir_state[index][myid] = 3; 
+			//purge operation
+			for (i=0; i<QUAD; i++)
+			{
+				if (dir_sharelist[index][i] == 1)
+				{
+					dir_sharelist[index][i] = 0;
+					dir_state[index][i] = 0;
+					penalty += gc->penalty.read * REMOTE_FACTOR;
+				}	
+			}
+			break;
+		case 3: //gone
+			dir_state[index][home_id] = 2; // make sure home is in gone state
+			//purge operation
+			for (i=0; i<QUAD; i++)
+			{
+				if (dir_sharelist[index][i] == 1)
+				{
+					dir_sharelist[index][i] = 0;
+					dir_state[index][i] = 0;
+					penalty += gc->penalty.read * REMOTE_FACTOR;
+				}	
+			}
+			break;
+		default:
+			break;
+	}	
+	 
+
         /* Update the statistics. */
         INC_STAT(gc, data_write);
 
