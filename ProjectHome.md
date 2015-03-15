@@ -1,0 +1,1 @@
+Writing a parallel code with Pthreads and run it on Simics to test the performance.
